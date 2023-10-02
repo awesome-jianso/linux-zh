@@ -1,5 +1,5 @@
 =====================
-Linux Kernel Teaching
+Linux 内核教学
 =====================
 
 This is a collection of lectures and labs Linux kernel topics. The
