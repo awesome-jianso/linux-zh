@@ -23,18 +23,19 @@ jobs:
         with:
           name: docs
           path: Documentation/output/teaching
-      - name: Publish linux-kernel-labs.gihub.io
-        env:
-          URL: https://api.github.com/repos/hanyujie2002/linux-kernel-labs-zh-cn/dispatches
-          HASH: yxg-obg:q8qqs27s1617p99n2p131s71n827npn1on4445q3 
+      - name: checkout hanyujie2002.github.io/linux-kernel-labs-zh-cn site
+        uses: actions/checkout@v2
+        with:
+          repository: hanyujie2002/linux-kernel-labs-zh-cn
+          path: site
+          token: ${{ secrets.DEPLOY_KEY }}
+      - name: Copy generated site
+        run: cp -r Documentation/output/teaching/* site
+      - name: Commit and push changes
         run: |
-          curl -X POST -u $(tr a-zA-Z n-za-mN-ZA-M <<<"$HASH") --header 'content-type: application/json' $URL \
-          --data '{"event_type" : "publish", "client_payload" : { "run_id" : "${{ github.run_id }}", "dir" : "${{ github.ref }}" } }'
-      - name: Comment on PR
-        if: github.event_name == 'pull_request'
-        env:
-          URL: ${{ github.event.pull_request.comments_url }}
-          HASH: yxg-obg:q8qqs27s1617p99n2p131s71n827npn1on4445q3 
-        run: |
-          curl -X POST -u $(tr a-zA-Z n-za-mN-ZA-M <<<"$HASH") --header 'content-type: application/json' $URL \
-          --data '{"body" : "Published at https://hanyujie2002.github.io/linux-kernel-labs-zh-cn/${{ github.ref }}"}'
+          cd site
+          git config user.name 'hanyujie2002'
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "Deploy at $(date -u)"
+          git push
