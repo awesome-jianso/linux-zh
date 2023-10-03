@@ -1,6 +1,6 @@
-============
-System Calls
-============
+=======
+系统调用
+=======
 
 `View slides <syscalls-slides.html>`_
 
@@ -8,27 +8,25 @@ System Calls
    :autoslides: False
    :theme: single-level
 
-Lecture objectives:
+课程目标：
 ===================
 
 .. slide:: System Calls
    :inline-contents: True
    :level: 2
 
-   * Linux system calls implementation
+   * Linux 系统调用实现
 
-   * VDSO and virtual syscalls
+   * VDSO and 虚拟系统调用
 
-   * Accessing user space from system calls
+   * 通过系统调用访问用户空间
 
 
 
-Linux system calls implementation
+Linux 系统调用实现
 =================================
 
-At a high level system calls are "services" offered by the kernel to
-user applications and they resemble library APIs in that they are
-described as a function call with a name, parameters, and return value.
+从高层视角来看，系统调用是内核向用户应用程序提供的“服务”，它们类似于库 API，因为它们被描述为具有名称、参数和返回值的函数调用。
 
 .. slide:: System Calls as Kernel services
    :inline-contents: True
@@ -39,69 +37,50 @@ described as a function call with a name, parameters, and return value.
    .. ditaa::
 
            +-------------+           +-------------+
-           | Application |  	     | Application |
+           | 应用程序     |  	        | 应用程序    |
            +-------------+           +-------------+
              |                           |
              |read(fd, buff, len)        |fork()
              |                           |
              v                           v
-           +---------------------------------------+
-           |               Kernel                  |
-           +---------------------------------------+
+           +-------------------------------------+
+           |               内核                  |
+           +-------------------------------------+
 
 
-However, on a closer look, we can see that system calls are actually
-not function calls, but specific assembly instructions (architecture
-and kernel specific) that do the following:
+然而，从底层视角看的话，我们会发现系统调用实际上并不是函数调用，而是特定的汇编指令（与体系结构和内核相关），其功能如下：
 
 .. slide:: System Call Setup
    :inline-contents: True
    :level: 2
 
-   * setup information to identify the system call and its parameters
+   * 用于识别系统调用及其参数的设置信息
 
-   * trigger a kernel mode switch
+   * 触发内核模式切换
 
-   * retrieve the result of the system call
+   * 获取系统调用的结果
 
-In Linux, system calls are identified by numbers and the parameters
-for system calls are machine word sized (32 or 64 bit). There can be a
-maximum of 6 system call parameters. Both the system call number and
-the parameters are stored in certain registers.
+在 Linux 中，系统调用使用数字进行标识，系统调用的参数为机器字大小（32位或64位）。最多可以有6个系统调用参数。系统调用编号和参数都存储在特定的寄存器中。
 
-For example, on 32bit x86 architecture, the system call identifier is
-stored in the EAX register, while parameters in registers EBX, ECX,
-EDX, ESI, EDI, EBP.
+例如，在 32 位的 x86 架构中，系统调用标识符存储在 EAX 寄存器中，而参数存储在 EBX、ECX、EDX、ESI、EDI 和 EBP寄存器中。
 
 .. slide:: Linux system call setup
    :inline-contents: False
    :level: 2
 
-   * System calls are identified by numbers
+   * 系统调用通过数字进行标识
 
-   * The parameters for system calls are machine word sized (32 or 64
-     bit) and they are limited to a maximum of 6
+   * 系统调用的参数为机器字大小（32位或64位）并且最多可以有6个系统调用参数。
 
-   * Uses registers to store them both (e.g. for 32bit x86: EAX for
-     system call and EBX, ECX, EDX, ESI, EDI, EBP for parameters)
+   * 使用寄存器同时存储它们（例如，对于 32 位 x86 架构：系统调用标识符使用 EAX 寄存器，参数使用 EBX、ECX、EDX、ESI、EDI 和 EBP 寄存器）。
 
-System libraries (e.g. libc) offers functions that implement the
-actual system calls in order to make it easier for applications to use
-them.
+系统库（例如 libc 库）提供系统库（例如 libc）提供了函数来实现实际的系统调用，以便应用程序更容易使用它们。
 
-When a user to kernel mode transition occurs, the execution flow is
-interrupted and it is transferred to a kernel entry point. This is
-similar to how interrupts and exceptions are handled (in fact on some
-architectures this transition happens as a result of an exception).
+当用户到内核模式的转换发生时，执行流程会被中断，并传递到内核的入口点。这类似于中断和异常的处理方式（实际上，在某些架构上，这种转换正是由异常引起的）。
 
-The system call entry point will save registers (which contains values
-from user space, including system call number and system call
-parameters) on stack and then it will continue with executing the
-system call dispatcher.
+系统调用入口点会将寄存器（其中包含来自用户空间的值，包括系统调用标识符和系统调用参数）保存在堆栈上，然后继续执行系统调用分发器（system call dispatcher）。
 
-.. note:: During the user - kernel mode transition the stack is also
-          switched from the user stack to the kernel stack. This is
-          explained in more details in the interrupts lecture.
+.. note:: 在用户模式和内核模式之间的切换过程中，还会将堆栈从用户堆栈切换到内核堆栈。这一点在中断课程中有更详细的解释。
 
 .. slide:: Example of Linux system call setup and handling
    :inline-contents: True
@@ -110,7 +89,7 @@ system call dispatcher.
    .. ditaa::
 
            +-------------+   dup2    +-----------------------------+
-           | Application |-----+     |  libc                       |
+           |   应用程序   |-----+     |  libc                       |
            +-------------+     |     |                             |
                                +---->| C7590 dup2:                 |
                                      | ...                         |
@@ -125,7 +104,7 @@ system call dispatcher.
       |								    	  |
       |								    	  |
       |    +------------------------------------------------------------+ |
-      |    |                      Kernel                                | |
+      |    |                        内核                                | |
       |    |                                                            | |
       +--->|ENTRY(entry_INT80_32)                                       | |
            | ASM_CLAC                                                   | |
@@ -141,8 +120,7 @@ system call dispatcher.
            +------------------------------------------------------------+
 
 
-The purpose of the system call dispatcher is to verify the system call
-number and run the kernel function associated with the system call.
+系统调用分发器的作用是验证系统调用编号，并执行与该系统调用相关的内核函数。
 
 .. slide:: Linux System Call Dispatcher
    :inline-contents: True
@@ -150,7 +128,7 @@ number and run the kernel function associated with the system call.
 
    .. code-block:: c
 
-      /* Handles int $0x80 */
+      /* 处理（handle）int $0x80 */
       __visible void do_int80_syscall_32(struct pt_regs *regs)
       {
 	  enter_from_user_mode();
@@ -158,7 +136,7 @@ number and run the kernel function associated with the system call.
 	  do_syscall_32_irqs_on(regs);
       }
 
-      /* simplified version of the Linux x86 32bit System Call Dispatcher */
+      /* Linux x86 32 位系统调用分发器的简化版本 */
       static __always_inline void do_syscall_32_irqs_on(struct pt_regs *regs)
       {
 	  unsigned int nr = regs->orig_ax;
@@ -172,9 +150,7 @@ number and run the kernel function associated with the system call.
 
 
 
-To demonstrate the system call flow we are going to use the virtual
-machine setup, attach gdb to a running kernel, add a breakpoint to the
-dup2 system call and inspect the state.
+为了向你展示系统调用的流程，我们会用虚拟机来模拟，然后用 gdb 工具来连接正在运行的内核，给 dup2 这个系统调用设置一个断点，再查看它的状态。
 
 .. slide:: Inspecting dup2 system call
    :inline-contents: True
@@ -185,35 +161,29 @@ dup2 system call and inspect the state.
    .. asciicast:: ../res/syscalls-inspection.cast
 
 
-In summary, this is what happens during a system call:
+总结一下，在系统调用过程中发生了以下情况：
 
 .. slide:: System Call Flow Summary
    :inline-contents: True
    :level: 2
 
-   * The application is setting up the system call number and
-     parameters and it issues a trap instruction
+   * 应用程序设置系统调用编号和参数，并触发陷阱（trap）指令
 
-   * The execution mode switches from user to kernel; the CPU switches
-     to a kernel stack; the user stack and the return address to user
-     space is saved on the kernel stack
+   * 执行模式从用户模式切换到内核模式；CPU 切换到内核堆栈；用户堆栈和返回地址保存在内核堆栈中
 
-   * The kernel entry point saves registers on the kernel stack
+   * 内核入口点将寄存器保存在内核堆栈中
 
-   * The system call dispatcher identifies the system call function
-     and runs it
+   * 系统调用分发器识别系统调用函数并运行它
 
-   * The user space registers are restored and execution is switched
-     back to user (e.g. calling IRET)
+   * 恢复用户空间寄存器并切换回用户空间（例如，调用 IRET 指令）
 
-   * The user space application resumes
+   * 用户空间应用程序恢复执行
 
 
-System call table
------------------
+系统调用表
+---------
 
-The system call table is what the system call dispatcher uses to map
-system call numbers to kernel functions:
+系统调用表是系统调用分发器用于将系统调用编号映射到内核函数的数据结构。
 
 .. slide:: System Call Table
    :inline-contents: True
@@ -244,147 +214,108 @@ system call numbers to kernel functions:
 
 
 
-System call parameters handling
--------------------------------
+系统调用参数处理
+---------------
 
-Handling system call parameters is tricky. Since these values are
-setup by user space, the kernel can not assume correctness and must
-always verify them thoroughly.
+处理系统调用参数是棘手的。由于这些值是由用户空间设置的，内核不能假定其正确性，因此必须始终进行彻底的验证。
 
-Pointers have a few important special cases that must be checked:
+指针有一些重要的特殊情况需要进行检查：
 
-.. slide:: System Calls Pointer Parameters
+.. slide:: 系统调用指针参数
    :inline-contents: True
    :level: 2
 
-   * Never allow pointers to kernel-space
+   * 绝不允许指向内核空间的指针
 
-   * Check for invalid pointers
-
-
-Since system calls are executed in kernel mode, they have access to
-kernel space and if pointers are not properly checked user
-applications might get read or write access to kernel space.
-
-For example, let's consider the case where such a check is not made for
-the read or write system calls. If the user passes a kernel-space
-pointer to a write system call then it can get access to kernel data
-by later reading the file. If it passes a kernel-space pointer to a
-read system call then it can corrupt kernel memory.
+   * 检查无效指针
 
 
-.. slide:: Pointers to Kernel Space
+由于系统调用在内核模式下执行，它们可以访问内核空间，如果指针没有正确检查，用户应用程序可能会读取或写入内核空间。
+
+例如，让我们考虑一种情况，即对于读取或写入系统调用没有进行此类检查。如果用户将一个指向内核空间的指针传递给写入系统调用，那么它稍后可以通过读取文件来访问内核数据。如果它将一个指向内核空间的指针传递给读取系统调用，那么它可以破坏内核内存。
+
+
+.. slide:: 指向内核空间的指针
    :level: 2
 
-   * User access to kernel data if allowed in a write system call
+   * 如果允许指向内核空间的指针存在，那么用户会通过写入系统调用访问内核数据
 
-   * User corrupting kernel data if allowed in a read system call
+   * 如果允许指向内核空间的指针存在，那么用户会通过读取系统调用破坏内核数据
 
 
-Likewise, if a pointer passed by the application is invalid
-(e.g. unmapped, read-only for cases where it is used for writing), it
-could "crash" the kernel. Two approaches could be used:
+同样，如果应用程序传递的指针无效（例如，指针未映射或在需要进行写操作的情况下使用只读的指针），它可能会导致内核"崩溃"。可以采用两种方法来处理：
 
-.. slide:: Invalid pointers handling approaches
+.. slide:: 处理无效指针的方法
    :inline-contents: True
    :level: 2
 
-   * Check the pointer against the user address space before using it,
-     or
+   * 在使用指针之前对照用户地址空间检查指针，或者
 
-   * Avoid checking the pointer and rely on the MMU to detect when the
-     pointer is invalid and use the page fault handler to determine
-     that the pointer was invalid
+   * 避免检查指针，并依赖于内存管理单元（MMU）来检测指针是否无效，并使用页面故障处理程序确定指针是否无效
 
 
-Although it sounds tempting, the second approach is not that easy to
-implement. The page fault handler uses the fault address (the address
-that was accessed), the faulting address (the address of the
-instruction that did the access) and information from the user address
-space to determine the cause:
+尽管第二种方法听起来很诱人，但实施起来并不那么容易。页面故障处理程序使用故障地址（被访问的地址）、引发故障的地址（执行访问的指令的地址）和用户地址空间的信息来确定原因：
 
-.. slide:: Page fault handling
+.. slide:: 页面故障处理
    :inline-contents: True
    :level: 2
 
-      * Copy on write, demand paging, swapping: both the fault and
-	faulting addresses are in user space; the fault address is
-	valid (checked against the user address space)
 
-      * Invalid pointer used in system call: the faulting address is
-	in kernel space; the fault address is in user space and it is
-	invalid
+      * 写时复制（Copy on Write）、需求分页（demand paging）、交换（swapping）：故障地址和引发故障的地址都在用户空间；故障地址有效（在用户地址空间进行检查）。
 
-      * Kernel bug (kernel accesses invalid pointer): same as above
+      * 在系统调用中使用无效指针：引发故障的地址在内核空间；故障地址在用户空间且无效。
 
-But in the last two cases we don't have enough information to
-determine the cause of the fault.
+      * 内核错误（内核访问无效指针）：与上述情况相同。
 
-In order to solve this issue, Linux uses special APIs (e.g
-:c:func:`copy_to_user`) to accesses user space that are specially
-crafted:
+但是，在最后两种情况下，我们没有足够的信息来确定故障的原因。
 
-.. slide:: Marking kernel code that accesses user space
+为了解决这个问题，Linux 使用特殊的 API（例如 c 语言函数 `copy_to_user`）来访问特别设计的用户空间：
+
+.. slide:: 标记访问用户空间的内核代码
    :inline-contents: True
    :level: 2
 
-   * The exact instructions that access user space are recorded in a
-     table (exception table)
+   * 访问用户空间的确切指令被记录在一个表格中（异常表）
 
-   * When a page fault occurs the faulting address is checked against
-     this table
+   * 当发生页故障时，会用该表格检查引发故障的地址
 
 
-Although the fault handling case may be more costly overall depending
-on the address space vs exception table size, and it is more complex,
-it is optimized for the common case and that is why it is preferred
-and used in Linux.
+尽管故障处理情况可能在地址空间与异常表大小方面更加昂贵，而且更加复杂，但它针对常见情况进行了优化，这就是为什么在 Linux 中它更受欢迎且使用的更多。
 
-
-.. slide:: Cost analysis for pointer checks vs fault handling
+.. slide:: 指针检查与故障处理的成本分析
    :inline-contents: True
    :level: 2
 
    +------------------+-----------------------+------------------------+
-   | Cost             |  Pointer checks       | Fault handling         |
+   | 成本             |  指针检查             | 故障处理               |
    +==================+=======================+========================+
-   | Valid address    | address space search  | negligible             |
+   | 有效地址         | 地址空间搜索          | 可忽略的               |
    +------------------+-----------------------+------------------------+
-   | Invalid address  | address space search  | exception table search |
+   | 无效地址         | 地址空间搜索          | 异常表搜索             |
    +------------------+-----------------------+------------------------+
 
 
-Virtual Dynamic Shared Object (VDSO)
-====================================
+虚拟动态共享对象 (VDSO)
+======================
 
-The VDSO mechanism was born out of the necessity of optimizing the
-system call implementation, in a way that does not impact libc with
-having to track the CPU capabilities in conjunction with the kernel
-version.
+VDSO（Virtual Dynamic Shared Object，虚拟动态共享对象）机制之所以诞生是为了优化系统调用的实现，以一种不需要 libc 跟踪 CPU 功能与内核版本的方式。
 
-For example, x86 has two ways of issuing system calls: int 0x80 and
-sysenter. The latter is significantly faster so it should be used when
-available. However, it is only available for processors newer than
-Pentium II and only for kernel versions greater than 2.6.
+例如，x86 有两种触发系统调用的方式：int 0x80 和 sysenter。后者速度显著更快，因此如果可以的话应使用它。然而，它仅适用于 Pentium II 之后的处理器，并且仅适用于大于 2.6 内核版本的情况。
 
-With VDSO the system call interface is decided by the kernel:
+使用 VDSO 的话，系统调用接口由内核决定：
 
-.. slide:: Virtual Dynamic Shared Object (VDSO)
+.. slide:: 虚拟动态共享对象（VDSO）
    :inline-contents: True
    :level: 2
 
-   * a stream of instructions to issue the system call is generated by
-     the kernel in a special memory area (formatted as an ELF shared
-     object)
+   * 内核在一个特殊的内存区域生成一系列用来触发系统调用的指令（格式化为 ELF 共享对象）
 
-   * that memory area is mapped towards the end of the user address
-     space
+   * 该内存区域映射到用户地址空间的末尾
 
-   * libc searches for VDSO and if present will use it to issue the
-     system call
+   * libc 搜索 VDSO，如果存在，则使用它来发出系统调用
 
 
-.. slide:: Inspecting VDSO
+.. slide:: 检查 VDSO
    :inline-contents: True
    :level: 2
 
@@ -394,52 +325,42 @@ With VDSO the system call interface is decided by the kernel:
 
 
 
-An interesting development of the VDSO is the virtual system calls
-(vsyscalls) which run directly from user space. These vsyscalls are
-also part of VDSO and they are accessing data from the VDSO page that
-is either static or modified by the kernel in a separate read-write
-map of the VDSO page. Examples of system calls that can be implemented
-as vsyscalls are: getpid or gettimeofday.
+VDSO 的一个有趣发展产物是虚拟系统调用（vsyscalls），它们直接从用户空间运行。这些 vsyscall 也是 VDSO 的一部分，它们访问 VDSO 页面上的数据，该数据可以是静态的，也可以是由内核在 VDSO 页面的单独读写映射中修改的。作为 vsyscall 可以实现的系统调用的示例包括：getpid 或 gettimeofday。
 
-
-.. slide:: Virtual System Calls (vsyscalls)
+.. slide:: 虚拟系统调用（vsyscalls）
    :inline-contents: True
    :level: 2
 
-   * "System calls" that run directly from user space, part of the VDSO
+   * 直接从用户空间运行的“系统调用”，属于 VDSO 的一部分
 
-   * Static data (e.g. getpid())
+   * 静态数据（例如，getpid（））
 
-   * Dynamic data update by the kernel a in RW map of the VDSO
-     (e.g. gettimeofday(), time(), )
+   * 内核通过VDSO的读写映射进行动态数据更新（例如，gettimeofday（），time（））
 
 
-Accessing user space from system calls
-======================================
+通过系统调用访问用户空间
+=======================
 
-As we mentioned earlier, user space must be accessed with special APIs
-(:c:func:`get_user`, :c:func:`put_user`, :c:func:`copy_from_user`,
-:c:func:`copy_to_user`) that check whether the pointer is in user space
-and also handle the fault if the pointer is invalid. In case of invalid
-pointers, they return a non-zero value.
+正如我们之前提到的，必须使用特殊的 API（如 :c:func:`get_user`、:c:func:`put_user`、:c:func:`copy_from_user` 以及
+:c:func:`copy_to_user`）来访问用户空间。这些 API 会检查指针是否位于用户空间，并在指针无效时处理错误。如果指针无效，它们将返回一个非零值。
 
-.. slide:: Accessing user space from system calls
+.. slide:: 通过系统调用访问用户空间
    :inline-contents: True
    :level: 2
 
    .. code-block:: c
 
-      /* OK: return -EFAULT if user_ptr is invalid */
+      /* 如果 user_ptr 无效，则返回 -EFAULT */
       if (copy_from_user(&kernel_buffer, user_ptr, size))
           return -EFAULT;
 
-      /* NOK: only works if user_ptr is valid otherwise crashes kernel */
+      /* 只有当 user_ptr 有效时才能工作，否则会导致内核崩溃 */
       memcpy(&kernel_buffer, user_ptr, size);
 
 
-Let's examine the simplest API, get_user, as implemented for x86:
+让我们来看一下最简单的 API，以 x86 为例的 `get_user` 实现：
 
-.. slide:: get_user implementation
+.. slide:: `get_user` 实现
    :inline-contents: True
    :level: 2
 
@@ -460,20 +381,14 @@ Let's examine the simplest API, get_user, as implemented for x86:
       })
 
 
-The implementation uses inline assembly, which allows inserting ASM
-sequences in C code and also handles access to/from variables in the
-ASM code.
+该实现使用内联汇编，允许在 C 代码中插入汇编序列，并处理对汇编代码中的变量的访问或者来自汇编代码的变量的访问。
 
-Based on the type size of the x variable, one of __get_user_1,
-__get_user_2 or __get_user_4 will be called. Also, before executing
-the assembly call, ptr will be moved to the first register EAX while
-after the completion of assembly part the value of EAX will be moved
-to __ret_gu and the EDX register will be moved to __val_gu.
+根据变量 x 的类型大小，将调用 __get_user_1、__get_user_2 或 __get_user_4 中的一个函数。此外，在执行汇编调用之前，将把 `ptr` 移动到第一个寄存器 EAX，而在汇编部分完成后，将把 EAX 的值移动到 `__ret_gu`，将 EDX 寄存器的值移动到 `__val_gu`。
 
-It is equivalent to the following pseudo code:
+以下是表示该过程的伪代码：
 
 
-.. slide:: get_user pseudo code
+.. slide:: get_user 伪代码
    :inline-contents: True
    :level: 2
 
@@ -487,9 +402,9 @@ It is equivalent to the following pseudo code:
 
 
 
-The __get_user_1 implementation for x86 is the following:
+__get_user_1 在 x86 上的实现如下所示：
 
-.. slide:: get_user_1 implementation
+.. slide:: get_user_1 实现
    :inline-contents: True
    :level: 2
 
@@ -516,25 +431,19 @@ The __get_user_1 implementation for x86 is the following:
 
       _ASM_EXTABLE(1b,bad_get_user)
 
-The first two statements check the pointer (which is stored in EDX)
-with the addr_limit field of the current task (process) descriptor to
-make sure that we don't have a pointer to kernel space.
+前两个语句使用当前任务（进程）描述符的 addr_limit 字段与存储在 EDX 中的指针进行比较，以确保我们没有指向内核空间的指针。
 
-Then, SMAP is disabled, to allow access to user from kernel, and the
-access to user space is done with the instruction at the 1: label. EAX
-is then zeroed to mark success, SMAP is enabled, and the call returns.
+然后，禁用 SMAP（Supervisor Mode Access Prevention，监管模式访问防护），以允许内核从用户空间访问，并使用标签 1: 处的指令访问用户空间。然后将 EAX 清零以表示成功，启用 SMAP，之后调用返回。
 
-The movzbl instruction is the one that does the access to user space
-and its address is captured with the 1: label and stored in a special
-section:
+movzbl 指令是执行对用户空间访问的指令，并且其地址通过标签 1: 捕获并存储在一个特殊的部分中：
 
-.. slide:: Exception table entry
+.. slide:: 异常表条目
    :inline-contents: True
    :level: 2
 
    .. code-block:: c
 
-      /* Exception table entry */
+      /* 异常表条目 */
       # define _ASM_EXTABLE_HANDLE(from, to, handler)           \
         .pushsection "__ex_table","a" ;                         \
         .balign 4 ;                                             \
@@ -547,18 +456,12 @@ section:
         _ASM_EXTABLE_HANDLE(from, to, ex_handler_default)
 
 
-For each address that accesses user space we have an entry in the
-exception table, that is made up of: the faulting address(from), where
-to jump to in case of a fault, and a handler function (that implements
-the jump logic). All of these addresses are stored on 32bit in
-relative format to the exception table, so that they work for both 32
-and 64 bit kernels.
+对于每个访问用户空间的地址，我们在异常表中都有一个条目，它由以下内容组成：引发故障的地址（from）、在出现错误时跳转到的位置（to）以及处理跳转逻辑的处理函数。所有这些地址都以相对格式存储为相对于异常表地址的 32 位值，因此适用于 32 位和 64 位内核。
 
 
-All of the exception table entries are then collected in the
-__ex_table section by the linker script:
+所有的异常表条目都由链接器脚本收集在 __ex_table 部分中：
 
-.. slide:: Exception table building
+.. slide:: 异常表构建
    :inline-contents: True
    :level: 2
 
@@ -573,12 +476,9 @@ __ex_table section by the linker script:
 	}
 
 
-The section is guarded with __start___ex_table and __stop___ex_table
-symbols, so that it is easy to find the data from C code. This table
-is accessed by the fault handler:
+该部分由 __start___ex_table 和 __stop___ex_table 符号保护，以便在 C 代码中轻松找到数据。此表由错误处理程序访问：
 
-
-.. slide:: Exception table handling
+.. slide:: 异常表处理
    :inline-contents: True
    :level: 2
 
@@ -604,8 +504,4 @@ is accessed by the fault handler:
           return handler(e, regs, trapnr);
       }
 
-
-All it does is to set the return address to the one in the field of
-the exception table entry which, in case of the get_user exception
-table entry, is bad_get_user which return -EFAULT to the caller.
-
+它的作用仅仅是将返回地址设置为异常表条目字段中的地址，对于 get_user 异常表条目而言，返回地址是 bad_get_user，它会向调用者返回 -EFAULT。
