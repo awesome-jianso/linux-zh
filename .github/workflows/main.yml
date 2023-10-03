@@ -26,7 +26,7 @@ jobs:
           path: site
           token: ${{ secrets.DEPLOY_KEY }}
       - name: Copy generated site
-        run: cp -r Documentation/output/* site
+        run: cp -r Documentation/output/teaching/* site
       - name: Commit and push changes
         run: |
           cd site
