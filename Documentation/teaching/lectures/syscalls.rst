@@ -34,7 +34,7 @@ Linux 系统调用实现
 
    |_|
 
-   .. code-block::
+   .. code-block:: text
 
            +-------------+           +-------------+
            |   应用程序   |  	     |   应用程序   |
@@ -86,7 +86,7 @@ Linux 系统调用实现
    :inline-contents: True
    :level: 2
 
-   .. code-block::
+   .. code-block:: text
 
            +-------------+   dup2    +-----------------------------+
            |   应用程序   |-----+     |  libc                       |
