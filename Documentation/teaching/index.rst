@@ -2,11 +2,7 @@
 Linux 内核教学
 =====================
 
-This is a collection of lectures and labs Linux kernel topics. The
-lectures focus on theoretical and Linux kernel exploration.
-
-测试测试
-
+这是一系列关于 Linux 内核主题的课程和实验。课程侧重于理论和 Linux 内核探索。
 
 The labs focus on device drivers topics and they resemble "howto"
 style documentation. Each topic has two parts:
