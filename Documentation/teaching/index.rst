@@ -1,38 +1,28 @@
-=====================
+=============
 Linux 内核教学
-=====================
+=============
 
 这是一系列关于 Linux 内核主题的课程和实验。课程侧重于理论和 Linux 内核探索。
 
-The labs focus on device drivers topics and they resemble "howto"
-style documentation. Each topic has two parts:
+实验侧重于设备驱动程序主题，文档风格类似“howto”。每个主题分两部分：
 
-* a walk-through the topic which contains an overview, the main
-  abstractions, simple examples and pointers to APIs
+* 主题概述，包含概述、主要抽象概念、简单示例和 API的指引。
 
-* a hands-on part which contains a few exercises that should be
-  resolved by the student; to focus on the topic at hand, the student
-  is presented with a starting coding skeleton and with in-depth tips
-  on how to solve the exercises
+* 实践部分，包含几个应由学生解决的练习；为了使学生专注于当下的主题，学生会得到一个起始编码框架和深入的技巧提示来解决练习。
 
-This content is based on the `Operatings Systems 2
-<http://ocw.cs.pub.ro/courses/so2>`_ course from the Computer Science
-and Engineering Department, the Faculty of Automatic Control and
-Computers, University POLITEHNICA of Bucharest.
+这些内容基于布加勒斯特理工大学自动控制与计算机学院计算机科学与工程系的“操作系统 2”<http://ocw.cs.pub.ro/courses/so2>`_ 课程。
 
-You can get the latest version at http://github.com/linux-kernel-labs.
+你可以在 https://github.com/linux-kernel-labs 获取最新版本。
 
-To get started build the documentation from the sources after
-installing docker-compose on you host:
+在你的主机上安装 docker-compose 后，可以从源代码构建文档:
 
 .. code-block:: c
 
-   cd tools/labs && make docker-docs
+cd tools/labs && make docker-docs
 
-then point your browser at **Documentation/output/labs/index.html**.
+然后用你的浏览器中打开 **Documentation/output/labs/index.html**。
 
-Alternatively, you can build directly on the host (see
-tools/labs/docs/Dockerfile for dependencies):
+或者，你可以直接在主机上构建(参见 tools/labs/docs/Dockerfile 中的依赖项)：
 
 .. code-block:: c
 
@@ -83,4 +73,3 @@ tools/labs/docs/Dockerfile for dependencies):
    info/vm.rst
    info/extra-vm.rst
    info/contributing.rst
-

@@ -1,5 +1,5 @@
 ==============================================================
-SO2 Lecture 01 - Course overview and Linux kernel introduction
+SO2 课程 01 - 课程概要以及 Linux 内核介绍
 ==============================================================
 
 `View slides <lec1-intro-slides.html>`_
@@ -13,7 +13,7 @@ SO2 Lecture 01 - Course overview and Linux kernel introduction
    :level: 1
 
 
-Echipa
+团队
 ======
 
 .. slide:: Echipa
@@ -28,9 +28,9 @@ Echipa
      Teodorescu (Ștefan, Fane), Mihai Popescu (Mihai, Mișu),
      Constantin Răducanu, Daniel Dinca, Laurențiu Ștefan
 
-   * Mult succes în noul semestru!
+   * 祝你在新学期一切顺利！
 
-Poziționare curs
+课程定位
 ================
 
 .. slide:: Poziționare curs
@@ -40,25 +40,26 @@ Poziționare curs
    .. ditaa::
 
       +---------------------------------------------------------+
-      | application programming (EGC, SPG, PP, SPRC, IOC, etc.) |
+      | 应用程序编程 (EGC, SPG, PP, SPRC, IOC 等) |
       +---------------------------------------------------------+
 
            +----------------------------------+
-           | system programming (PC, SO, CPL) |
+           | 系统编程 (PC, SO, CPL) |
            +----------------------------------+
-                                                     user space
+                                                     用户空间
       ----------------------------------------------------------=-
-                                                   kernel space
+                                                   内核空间
              +--------------------------+
-             | kernel programming (SO2) |
+             | 内核编程 (SO2) |
              +--------------------------+
 
       ----------------------------------------------------------=-
 
            +----------------------------------+
-           |   hardware (PM, CN1, CN2, PL )   |
+           |   硬件 (PM, CN1, CN2, PL )   |
            +----------------------------------+
 
+.. 罗马尼亚语不会嘤嘤嘤 ＞﹏＜
 Resurse
 =======
 
