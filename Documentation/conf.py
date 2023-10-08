@@ -151,7 +151,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'The Linux Kernel'
+project = 'Linux 系统内核'
 copyright = 'The kernel development community'
 author = 'The kernel development community'
 
