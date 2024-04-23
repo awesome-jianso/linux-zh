@@ -1,6 +1,9 @@
 name: build-and-push-to-static-site-repo
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   build_job:
